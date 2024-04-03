@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const port = process.env.PORT || 3000
 const fileupload = require('express-fileupload');
 const { CosmosClient } = require("@azure/cosmos");
 const { BlobServiceClient } = require("@azure/storage-blob");
@@ -82,10 +83,20 @@ async function Todos() {
 Todos();
 todosAprovatos();
 
+app.use(express.static('public'));
 
 
-app.get('/', (req, res) => {
+app.get('/', function (req, res) {
     const html = `
+	<!DOCTYPE html>
+    <html lang="pt">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Página Inicial</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+	<body>
         <h1>Lista de eventos</h1>
         <ul>
             ${items.map((item, index) => `
@@ -104,7 +115,8 @@ app.get('/', (req, res) => {
         <button onclick="location.href='/SoAprovados'">So aprovados</button>
         <br>
         <br>
-        
+	</body>
+    </html>
     `;
     res.send(html);
 });
@@ -112,6 +124,15 @@ app.get('/', (req, res) => {
 app.get('/SoAprovados', (req, res) => {
 
     const html = `
+		<!DOCTYPE html>
+		<html lang="pt">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Lista de eventos aprovados</title>
+			<link rel="stylesheet" href="style.css">
+		</head>
+		<body>
         <h1>Lista de eventos aprovados</h1>
         <ul>
             ${itemsAprovatos.map((itemA, index) => `
@@ -128,23 +149,48 @@ app.get('/SoAprovados', (req, res) => {
         <button onclick="location.href='/'">Voltar para a página principal</button>
         <br>
         <br>
+		</body>
+		</html>
         
     `;
     res.send(html);
 });
+
+// Rota para servir o arquivo CSS
+app.use('/Detalhes', express.static('public'));
+
 app.get('/Detalhes/:index', (req, res) => {
     const index = parseInt(req.params.index);
     const detalhes = `
-            <h1>Detalhes do evento</h1>
-            <h2>Nome do evento:</h2> ${items[index].Nome}
-            <h2>Descrição:</h2> ${items[index].Descricao}
-            <h2>Data:</h2> ${items[index].Data}
-            <h2>Local: </h2>${items[index].Local}
-            <h2>Ocupação: </h2>${items[index].Ocupacao}
-            <h2>Imagem:</h2><img src="${items[index].Imagem}" alt="Imagem do evento ${index}" width="200" height="200">
-            <br>
-            <br>
-            <button onclick="location.href='/'">Voltar para a página principal</button>
+				<!DOCTYPE html>
+				<html lang="pt">
+				<head>
+					<meta charset="UTF-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<title>Detalhes do evento</title>
+					<link rel="stylesheet" href="style.css">
+				</head>
+				<body>
+					<div class="container-detalhes">
+						<h1>Detalhes do evento</h1>
+						<div class="event-details">
+							<h2>Nome do evento:</h2>
+							<p>${items[index].Nome}</p>
+							<h2>Descrição:</h2>
+							<p>${items[index].Descricao}</p>
+							<h2>Data:</h2>
+							<p>${items[index].Data}</p>
+							<h2>Local:</h2>
+							<p>${items[index].Local}</p>
+							<h2>Ocupação:</h2>
+							<p>${items[index].Ocupacao}</p>
+							<h2>Imagem:</h2>
+							<img src="${items[index].Imagem}" alt="Imagem do evento ${index}" width="200" height="200">
+						</div>
+						<button onclick="location.href='/'">Voltar para a página principal</button>
+					</div>
+				</body>
+				</html>
 
         `;
         res.send(detalhes);
@@ -152,19 +198,35 @@ app.get('/Detalhes/:index', (req, res) => {
 
 app.get('/criarevento', (req, res) => {
     const html = `
-        <h1>Criar Evento</h1>
-        <form action="/criareventos" method="post" enctype="multipart/form-data">
-            <input type="text" name="Nome" placeholder="Nome do evento" required><br>
-            <input type="text" name="Descricao" placeholder="Descricao" required><br>
-            <input type="text" name="Organizadores" placeholder="Organizadores" required><br>
-            <input type="date" name="Data"  placeholder="Data Inicio" required><br>
-            <input type="date" name="DataFim"  placeholder="Data Fim" required><br>
-            <input type="text" name="Local" placeholder="Local" required><br>
-            <input type="number" name="Ocupacao" placeholder="Ocupacao" required><br>
-            <input type="file"  name="image"  accept="image/*" required><br>
-            <button type="submit">Criar</button>
-        </form>
-        <button onclick="location.href='/criar'">Voltar para a página principal</button>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Criar Evento</title>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Criar Evento</h1>
+            <form action="/criareventos" method="post" enctype="multipart/form-data">
+                <input type="text" name="Nome" placeholder="Nome do evento" required><br>
+                <input type="text" name="Descricao" placeholder="Descricao" required><br>
+                <input type="text" name="Organizadores" placeholder="Organizadores" required><br>
+                <input type="date" name="Data" placeholder="Data Inicio" required><br>
+                <input type="date" name="DataFim" placeholder="Data Fim" required><br>
+                <input type="text" name="Local" placeholder="Local" required><br>
+                <input type="number" name="Ocupacao" placeholder="Ocupacao" required><br>
+                <input type="file" name="image" accept="image/*" required><br>
+                <button type="submit">Criar</button>
+            </form>
+            <button onclick="location.href='/'">Voltar para a página principal</button>
+        </div>
+    </div>
+</body>
+</html>
+
     `;
     res.send(html);
 });
@@ -202,8 +264,19 @@ app.post('/criareventos', async (req, res) => {
         cont.items.create(item);
 
         const html = `
+		<!DOCTYPE html>
+			<html lang="pt">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<link rel="stylesheet" href="style.css">
+				<title>Criar Evento</title>
+			</head>
+			<body>
             <h1>Evento criado com sucesso</h1>
-            <button onclick="location.href='/'">Voltar para a página principal</button>`;
+            <button onclick="location.href='/'">Voltar para a página principal</button>
+			</body>
+			</html>`;
         res.send(html);
     } catch (error) {
         console.error(error.message);
@@ -211,6 +284,6 @@ app.post('/criareventos', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-    console.log('Server no port 3000');
+app.listen(port, function () {
+  console.log('Example app listening on port ${port}!');
 });
