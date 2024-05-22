@@ -23,7 +23,8 @@ const containerName = "projcontainerstorage";
 
 const itemsAprovados = [];
 const items = [];
-const endpoint = process.env.ENDPOINTCOSMO;const key = process.env.KEYCOSMO;
+const endpoint = process.env.ENDPOINTCOSMO;
+const key = process.env.KEYCOSMO;
 
 const client = new CosmosClient({ endpoint, key });
 
