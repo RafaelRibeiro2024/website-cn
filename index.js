@@ -23,8 +23,7 @@ const containerName = "projcontainerstorage";
 
 const itemsAprovados = [];
 const items = [];
-const endpoint = "https://project-rrj-database.documents.azure.com:443/";
-const key = process.env.KEYCOSMO;
+const endpoint = process.env.ENDPOINTCOSMO;const key = process.env.KEYCOSMO;
 
 const client = new CosmosClient({ endpoint, key });
 
